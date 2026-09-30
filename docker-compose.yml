@@ -1,0 +1,35 @@
+version: "3.9"
+
+services:
+  dafne-report-db:
+    container_name: dafne-report-db
+    hostname: dafne-report-db
+    restart: always
+    image: "library/postgres:17"
+    env_file:
+      - /data/dafne-report/db/config/db_credentials.env
+    networks:
+      - dafne-report
+    ports:
+      - "<docker-image-db-port>:5432"
+    volumes:
+      - /data/dafne-report/db/data/:/var/lib/postgresql/data
+
+  dafne-report-be:
+    image: "aliaspace/dafne-report:be-4.3.1"
+    container_name: dafne-report-be
+    hostname: dafne-report-be
+    restart: always
+    command: npm run start
+    ports:
+      - "<docker-image-be-port>:3000"
+    networks:
+      - dafne-report
+    volumes:
+      - /data/dafne-report/back-end/config:/usr/src/app/config
+      - /data/dafne-report/back-end/logs:/usr/src/app/logs
+      - <gss-log-folder-path>:/usr/src/app/gss_logs:ro
+
+networks:
+  dafne-report:
+    driver: bridge
